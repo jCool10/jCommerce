@@ -60,7 +60,7 @@ Thumbs.db
 .serena/
 .opencode/
 .gemini/settings.json
-/docs/
+# /docs/
 /plans/
 release-manifest.json
 CLAUDE.md

@@ -2,15 +2,12 @@
 
 **A portfolio-grade NestJS + Next.js microservices e-commerce platform** with scalable architecture, observability, and multi-currency support (USD + VND).
 
-> **Reviewer shortcut:** see **[Codebase Highlights](./docs/codebase-highlights.md#senior-judgment-code-highlights)** — six file:line pointers to the most important code (deadlock-free reservation, saga + compensation, webhook idempotency, versioned events, transactional outbox, hexagonal layering).
-
-**Status:** Phases 1–12 + 14 complete; Phase 13 partial (reconciliation cron only, E2E suite deferred); Phase 15 deferred; Phase 16 docs published this session.
-
 ---
 
 ## Quick Start
 
 ### Prerequisites
+
 - Node.js ≥20.11.0, pnpm ≥9
 - Docker & Docker Compose
 - Stripe CLI (optional, for webhook testing)
@@ -40,14 +37,14 @@ pnpm --filter @jcool/catalog-service run seed:catalog
 
 ### Services
 
-| Service | Port | Purpose |
-|---------|------|---------|
-| **Auth** | 3001 | JWT issuance, user registration/login, token refresh |
-| **Catalog** | 3002 | Products, inventory, outbox → search indexing |
-| **Search** | 3003 | Elasticsearch full-text + facets (event-driven) |
-| **Order** | 3004 | Saga orchestration, Stripe integration, outbox → email |
-| **API Gateway** | 3000 | JWT verification, reverse proxy, rate limiting |
-| **Email Worker** | — | BullMQ + MJML/Handlebars (consumes order.confirmed) |
+| Service          | Port | Purpose                                                |
+| ---------------- | ---- | ------------------------------------------------------ |
+| **Auth**         | 3001 | JWT issuance, user registration/login, token refresh   |
+| **Catalog**      | 3002 | Products, inventory, outbox → search indexing          |
+| **Search**       | 3003 | Elasticsearch full-text + facets (event-driven)        |
+| **Order**        | 3004 | Saga orchestration, Stripe integration, outbox → email |
+| **API Gateway**  | 3000 | JWT verification, reverse proxy, rate limiting         |
+| **Email Worker** | —    | BullMQ + MJML/Handlebars (consumes order.confirmed)    |
 
 ### Key Patterns
 
@@ -94,7 +91,7 @@ Makefile           Dev convenience targets
 - **[Architecture Patterns](./docs/architecture-patterns.md)** — Deep walkthroughs (transactional outbox, saga, webhook idempotency, multi-currency)
 - **[Deployment Guide](./docs/deployment-guide.md)** — Local setup (5 min), env var groups, Docker Compose, Stripe webhook testing, troubleshooting
 - **[Design Guidelines](./docs/design-guidelines.md)** — Storefront Swiss Modernism (monochrome + accent) vs. Admin shadcn/ui (rounded + HSL), NextAuth v5
-- **[Project Roadmap](./docs/project-roadmap.md)** — Phase status, consciously deferred items, success metrics
+- **[Project Status & Roadmap](./docs/project-roadmap.md)** — Current status, consciously deferred items, success metrics
 
 ## Contributing
 
