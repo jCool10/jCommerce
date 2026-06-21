@@ -1,0 +1,114 @@
+// Order service database — owns Order, OrderItem, OrderEvent audit log,
+// OutboxEvent (transactional outbox), and WebhookEvent (added in phase 8
+// for Stripe webhook idempotency).
+//
+// Money is stored as integer subunit per currency (USD cents, VND đồng).
+// Per plan V2: explicit dual-currency, no FX conversion. unitAmount is
+// snapshotted into OrderItem at checkout time so price drift in catalog
+// does not retro-modify confirmed orders.
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL_ORDER")
+}
+
+enum Currency {
+  USD
+  VND
+}
+
+enum OrderStatus {
+  PENDING
+  INVENTORY_RESERVED
+  PAYMENT_PENDING
+  CONFIRMED
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+model Order {
+  id                    String      @id @default(uuid()) @db.Uuid
+  userId                String      @map("user_id") @db.Uuid
+  status                OrderStatus @default(PENDING)
+  totalAmount           Int         @map("total_amount")
+  currency              Currency
+  stripePaymentIntentId String?     @unique @map("stripe_payment_intent_id")
+  shippingLine1         String      @map("shipping_line1") @db.VarChar(200)
+  shippingLine2         String?     @map("shipping_line2") @db.VarChar(200)
+  shippingCity          String      @map("shipping_city") @db.VarChar(120)
+  shippingRegion        String?     @map("shipping_region") @db.VarChar(120)
+  shippingPostalCode    String      @map("shipping_postal_code") @db.VarChar(40)
+  shippingCountry       String      @map("shipping_country") @db.Char(2)
+  cancelReason          String?     @map("cancel_reason") @db.VarChar(40)
+  createdAt             DateTime    @default(now()) @map("created_at")
+  updatedAt             DateTime    @updatedAt @map("updated_at")
+
+  items  OrderItem[]
+  events OrderEvent[]
+
+  @@index([userId])
+  @@index([status])
+  @@index([createdAt(sort: Desc)])
+  @@map("orders")
+}
+
+model OrderItem {
+  id          String   @id @default(uuid()) @db.Uuid
+  orderId     String   @map("order_id") @db.Uuid
+  skuId       String   @map("sku_id") @db.Uuid
+  quantity    Int
+  unitAmount  Int      @map("unit_amount")
+  currency    Currency
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@index([orderId])
+  @@map("order_items")
+}
+
+// Append-only audit log: every status transition, every saga step.
+// Used for replay + debugging the orchestrator.
+model OrderEvent {
+  id         String   @id @default(uuid()) @db.Uuid
+  orderId    String   @map("order_id") @db.Uuid
+  type       String   @db.VarChar(80)
+  payload    Json
+  occurredAt DateTime @default(now()) @map("occurred_at")
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@index([orderId, occurredAt])
+  @@map("order_events")
+}
+
+// Transactional outbox — same pattern as catalog-service.
+// OutboxPollerCron drains rows where publishedAt IS NULL every 1s.
+model OutboxEvent {
+  id          String    @id @default(uuid()) @db.Uuid
+  routingKey  String    @map("routing_key")
+  payload     Json
+  createdAt   DateTime  @default(now()) @map("created_at")
+  publishedAt DateTime? @map("published_at")
+
+  @@index([publishedAt, createdAt])
+  @@map("outbox_events")
+}
+
+// Webhook idempotency table (filled in phase 8 by webhook controller).
+// Unique constraint on stripe event id is the single source of dedup truth.
+model WebhookEvent {
+  id              String   @id @default(uuid()) @db.Uuid
+  stripeEventId   String   @unique @map("stripe_event_id")
+  type            String   @db.VarChar(100)
+  payload         Json
+  processedAt     DateTime @default(now()) @map("processed_at")
+
+  @@map("webhook_events")
+}

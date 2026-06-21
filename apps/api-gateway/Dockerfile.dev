@@ -1,0 +1,9 @@
+# Dev-only image — production multi-stage image is added in phase 15.
+FROM node:20-alpine
+
+WORKDIR /workspace
+
+RUN corepack enable && corepack prepare pnpm@10.30.3 --activate
+
+EXPOSE 3000
+CMD ["pnpm", "--filter", "@jcool/api-gateway", "dev"]

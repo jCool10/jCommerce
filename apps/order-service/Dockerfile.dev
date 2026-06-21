@@ -1,0 +1,20 @@
+# Dev image: pnpm workspace install + nest watch.
+# Production Dockerfile deferred to phase 15 (Cloud Run distroless build).
+
+FROM node:22-alpine
+WORKDIR /workspace
+
+RUN corepack enable && corepack prepare pnpm@9.12.3 --activate
+
+# Workspace boot — copy lockfile + workspace manifest first for layer cache.
+COPY pnpm-workspace.yaml pnpm-lock.yaml package.json ./
+COPY packages packages
+COPY apps/order-service apps/order-service
+
+RUN pnpm install --frozen-lockfile --filter @jcool/order-service...
+
+WORKDIR /workspace/apps/order-service
+RUN pnpm prisma generate
+
+EXPOSE 3004
+CMD ["pnpm", "dev"]

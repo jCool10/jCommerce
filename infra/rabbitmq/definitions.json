@@ -1,0 +1,206 @@
+{
+  "rabbit_version": "3.13",
+  "users": [],
+  "vhosts": [
+    { "name": "/" }
+  ],
+  "permissions": [],
+  "exchanges": [
+    {
+      "name": "events",
+      "vhost": "/",
+      "type": "topic",
+      "durable": true,
+      "auto_delete": false,
+      "internal": false,
+      "arguments": {}
+    },
+    {
+      "name": "events.dlx",
+      "vhost": "/",
+      "type": "topic",
+      "durable": true,
+      "auto_delete": false,
+      "internal": false,
+      "arguments": {}
+    }
+  ],
+  "queues": [
+    {
+      "name": "order-created",
+      "vhost": "/",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {
+        "x-dead-letter-exchange": "events.dlx",
+        "x-dead-letter-routing-key": "order.created.dlq"
+      }
+    },
+    {
+      "name": "inventory-reserved",
+      "vhost": "/",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {
+        "x-dead-letter-exchange": "events.dlx",
+        "x-dead-letter-routing-key": "inventory.reserved.dlq"
+      }
+    },
+    {
+      "name": "inventory-failed",
+      "vhost": "/",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {
+        "x-dead-letter-exchange": "events.dlx",
+        "x-dead-letter-routing-key": "inventory.failed.dlq"
+      }
+    },
+    {
+      "name": "payment-succeeded",
+      "vhost": "/",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {
+        "x-dead-letter-exchange": "events.dlx",
+        "x-dead-letter-routing-key": "payment.succeeded.dlq"
+      }
+    },
+    {
+      "name": "payment-failed",
+      "vhost": "/",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {
+        "x-dead-letter-exchange": "events.dlx",
+        "x-dead-letter-routing-key": "payment.failed.dlq"
+      }
+    },
+    {
+      "name": "order-confirmed",
+      "vhost": "/",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {
+        "x-dead-letter-exchange": "events.dlx",
+        "x-dead-letter-routing-key": "order.confirmed.dlq"
+      }
+    },
+    {
+      "name": "order-cancelled",
+      "vhost": "/",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {
+        "x-dead-letter-exchange": "events.dlx",
+        "x-dead-letter-routing-key": "order.cancelled.dlq"
+      }
+    },
+    {
+      "name": "order-shipped",
+      "vhost": "/",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {
+        "x-dead-letter-exchange": "events.dlx",
+        "x-dead-letter-routing-key": "order.shipped.dlq"
+      }
+    },
+    {
+      "name": "product-indexed",
+      "vhost": "/",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {
+        "x-dead-letter-exchange": "events.dlx",
+        "x-dead-letter-routing-key": "product.indexed.dlq"
+      }
+    },
+    {
+      "name": "order.created.dlq",
+      "vhost": "/",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {}
+    },
+    {
+      "name": "inventory.reserved.dlq",
+      "vhost": "/",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {}
+    },
+    {
+      "name": "inventory.failed.dlq",
+      "vhost": "/",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {}
+    },
+    {
+      "name": "payment.succeeded.dlq",
+      "vhost": "/",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {}
+    },
+    {
+      "name": "payment.failed.dlq",
+      "vhost": "/",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {}
+    },
+    {
+      "name": "order.confirmed.dlq",
+      "vhost": "/",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {}
+    },
+    {
+      "name": "order.cancelled.dlq",
+      "vhost": "/",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {}
+    },
+    {
+      "name": "order.shipped.dlq",
+      "vhost": "/",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {}
+    },
+    {
+      "name": "product.indexed.dlq",
+      "vhost": "/",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {}
+    }
+  ],
+  "bindings": [
+    { "source": "events", "vhost": "/", "destination": "order-created", "destination_type": "queue", "routing_key": "order.created", "arguments": {} },
+    { "source": "events", "vhost": "/", "destination": "inventory-reserved", "destination_type": "queue", "routing_key": "inventory.reserved", "arguments": {} },
+    { "source": "events", "vhost": "/", "destination": "inventory-failed", "destination_type": "queue", "routing_key": "inventory.failed", "arguments": {} },
+    { "source": "events", "vhost": "/", "destination": "payment-succeeded", "destination_type": "queue", "routing_key": "payment.succeeded", "arguments": {} },
+    { "source": "events", "vhost": "/", "destination": "payment-failed", "destination_type": "queue", "routing_key": "payment.failed", "arguments": {} },
+    { "source": "events", "vhost": "/", "destination": "order-confirmed", "destination_type": "queue", "routing_key": "order.confirmed", "arguments": {} },
+    { "source": "events", "vhost": "/", "destination": "order-cancelled", "destination_type": "queue", "routing_key": "order.cancelled", "arguments": {} },
+    { "source": "events", "vhost": "/", "destination": "order-shipped", "destination_type": "queue", "routing_key": "order.shipped", "arguments": {} },
+    { "source": "events", "vhost": "/", "destination": "product-indexed", "destination_type": "queue", "routing_key": "product.indexed", "arguments": {} },
+    { "source": "events.dlx", "vhost": "/", "destination": "order.created.dlq", "destination_type": "queue", "routing_key": "order.created.dlq", "arguments": {} },
+    { "source": "events.dlx", "vhost": "/", "destination": "inventory.reserved.dlq", "destination_type": "queue", "routing_key": "inventory.reserved.dlq", "arguments": {} },
+    { "source": "events.dlx", "vhost": "/", "destination": "inventory.failed.dlq", "destination_type": "queue", "routing_key": "inventory.failed.dlq", "arguments": {} },
+    { "source": "events.dlx", "vhost": "/", "destination": "payment.succeeded.dlq", "destination_type": "queue", "routing_key": "payment.succeeded.dlq", "arguments": {} },
+    { "source": "events.dlx", "vhost": "/", "destination": "payment.failed.dlq", "destination_type": "queue", "routing_key": "payment.failed.dlq", "arguments": {} },
+    { "source": "events.dlx", "vhost": "/", "destination": "order.confirmed.dlq", "destination_type": "queue", "routing_key": "order.confirmed.dlq", "arguments": {} },
+    { "source": "events.dlx", "vhost": "/", "destination": "order.cancelled.dlq", "destination_type": "queue", "routing_key": "order.cancelled.dlq", "arguments": {} },
+    { "source": "events.dlx", "vhost": "/", "destination": "order.shipped.dlq", "destination_type": "queue", "routing_key": "order.shipped.dlq", "arguments": {} },
+    { "source": "events.dlx", "vhost": "/", "destination": "product.indexed.dlq", "destination_type": "queue", "routing_key": "product.indexed.dlq", "arguments": {} }
+  ],
+  "policies": [],
+  "parameters": [],
+  "global_parameters": []
+}

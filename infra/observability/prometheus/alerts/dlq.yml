@@ -1,0 +1,19 @@
+groups:
+  - name: rabbitmq_dlq
+    rules:
+      - alert: RabbitMQDLQHasMessages
+        # DLQs should always be empty. Depth > 0 means a consumer nacked a
+        # message and it was routed to the dead-letter exchange — potential
+        # silent data loss until the queue is re-driven or purged manually.
+        expr: rabbitmq_dlq_message_count > 0
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "RabbitMQ DLQ {{ $labels.queue }} has {{ $value }} message(s)"
+          description: >
+            Queue {{ $labels.queue }} has had {{ $value }} dead-lettered
+            message(s) for more than 5 minutes. Investigate consumer errors and
+            consider re-driving the queue. Messages will not be processed until
+            manually handled.
+          runbook_url: "https://github.com/jcool/jcool-ecommerce/blob/main/docs/runbooks/rabbitmq-dlq-remediation.md"

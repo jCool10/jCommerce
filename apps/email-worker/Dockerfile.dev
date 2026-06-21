@@ -1,0 +1,18 @@
+# Dev image: pnpm workspace install + nest watch.
+# Production Dockerfile deferred to phase 15 (Cloud Run distroless build).
+
+FROM node:22-alpine
+WORKDIR /workspace
+
+RUN corepack enable && corepack prepare pnpm@10.30.3 --activate
+
+# Workspace boot — copy lockfile + workspace manifest first for layer cache.
+COPY pnpm-workspace.yaml pnpm-lock.yaml package.json ./
+COPY packages packages
+COPY apps/email-worker apps/email-worker
+
+RUN pnpm install --frozen-lockfile --filter @jcool/email-worker...
+
+WORKDIR /workspace/apps/email-worker
+
+CMD ["pnpm", "dev"]

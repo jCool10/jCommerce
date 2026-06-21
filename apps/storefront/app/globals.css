@@ -1,0 +1,121 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Swiss Modernism 2.0 — monochrome zinc surfaces + single warm accent.
+   Semantic tokens via CSS vars; light/dark swaps with one class on <html>. */
+@layer base {
+  :root {
+    --bg: 255 255 255;
+    --bg-elevated: 250 250 250; /* zinc-50 */
+    --fg: 9 9 11; /* zinc-950 */
+    --muted: 244 244 245; /* zinc-100 */
+    --muted-fg: 113 113 122; /* zinc-500 */
+    --border: 228 228 231; /* zinc-200 */
+    --ring: 255 77 45; /* accent-500 */
+  }
+
+  .dark {
+    --bg: 9 9 11; /* zinc-950 */
+    --bg-elevated: 24 24 27; /* zinc-900 */
+    --fg: 250 250 250; /* zinc-50 */
+    --muted: 39 39 42; /* zinc-800 */
+    --muted-fg: 161 161 170; /* zinc-400 */
+    --border: 39 39 42; /* zinc-800 */
+    --ring: 255 122 83; /* accent-400 */
+  }
+
+  html {
+    color-scheme: light dark;
+    font-family: var(--font-sans), system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    @apply bg-bg text-fg antialiased;
+    font-feature-settings: 'cv11', 'ss01';
+  }
+
+  /* Single source for focus ring — sharp 2px outline in accent color. */
+  :focus-visible {
+    @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-bg;
+  }
+
+  /* Remove iOS double-tap zoom hover state. */
+  @media (hover: none) {
+    *:hover {
+      transition: none !important;
+    }
+  }
+
+  /* Selection — use accent for emphasis. */
+  ::selection {
+    background-color: rgb(var(--ring) / 0.25);
+    color: rgb(var(--fg));
+  }
+
+  /* Native form controls cleanup. */
+  input::-webkit-search-decoration,
+  input::-webkit-search-cancel-button,
+  input::-webkit-search-results-button,
+  input::-webkit-search-results-decoration {
+    -webkit-appearance: none;
+  }
+
+  /* Tabular numerals for prices, quantities, order numbers. */
+  .tabular-nums {
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+@layer components {
+  /* Editorial section header — small uppercase eyebrow + display title. */
+  .eyebrow {
+    @apply text-xs font-semibold uppercase tracking-widest text-muted-fg;
+  }
+
+  /* Hairline divider used between sections. */
+  .hairline {
+    @apply border-t border-border;
+  }
+
+  /* Swiss grid container — 12-col on lg+. */
+  .grid-12 {
+    @apply grid grid-cols-4 gap-4 md:grid-cols-8 md:gap-6 lg:grid-cols-12 lg:gap-8;
+  }
+}
+
+@layer utilities {
+  /* Skeleton shimmer used by loading placeholders. */
+  .shimmer {
+    position: relative;
+    overflow: hidden;
+  }
+  .shimmer::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    transform: translateX(-100%);
+    background-image: linear-gradient(
+      90deg,
+      transparent,
+      rgb(255 255 255 / 0.06),
+      transparent
+    );
+    animation: shimmer 1.6s linear infinite;
+  }
+
+  /* Reduced motion guard — applied globally. */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}

@@ -1,0 +1,41 @@
+<mjml>
+  <mj-head>
+    <mj-title>Order confirmed — jCool</mj-title>
+    <mj-preview>Thanks for your order, your jCool items are on the way.</mj-preview>
+    <mj-attributes>
+      <mj-all font-family="Helvetica, Arial, sans-serif" />
+      <mj-text font-size="14px" color="#1a1a1a" line-height="1.5" />
+      <mj-section background-color="#ffffff" />
+    </mj-attributes>
+  </mj-head>
+  <mj-body background-color="#f4f4f7">
+    <mj-section padding="32px 24px">
+      <mj-column>
+        <mj-text font-size="22px" font-weight="700">Order confirmed</mj-text>
+        <mj-text>Thanks for your order. We have received your payment and are getting it ready.</mj-text>
+      </mj-column>
+    </mj-section>
+
+    <mj-section padding="0 24px 16px">
+      <mj-column>
+        <mj-text font-weight="700">Order summary</mj-text>
+        <mj-text>Order ID: {{orderId}}</mj-text>
+        <mj-text>Confirmed: {{confirmedAt}}</mj-text>
+        <mj-text>Payment: {{stripePaymentIntentId}}</mj-text>
+      </mj-column>
+    </mj-section>
+
+    <mj-section padding="0 24px 24px">
+      <mj-column>
+        <mj-divider border-color="#d8d8df" border-width="1px" />
+        <mj-text font-size="16px" font-weight="700">Total: {{totalFormatted}}</mj-text>
+      </mj-column>
+    </mj-section>
+
+    <mj-section padding="0 24px 32px">
+      <mj-column>
+        <mj-text font-size="12px" color="#666">This is a transactional email from jCool. Reply to support@jcool.local if you need help.</mj-text>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>

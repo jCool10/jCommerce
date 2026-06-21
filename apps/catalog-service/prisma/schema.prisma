@@ -1,0 +1,126 @@
+// Catalog service database — owns Product, Sku, SkuPrice, Inventory,
+// Reservation, Category, and the OutboxEvent table (transactional outbox).
+//
+// Money is stored as integer subunit per currency (USD cents, VND đồng — VND
+// has no fractional subunit so amount = đồng directly). Per plan V2: explicit
+// dual-currency prices, no FX conversion.
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL_CATALOG")
+}
+
+enum Currency {
+  USD
+  VND
+}
+
+model Category {
+  id        String    @id @default(uuid()) @db.Uuid
+  slug      String    @unique
+  name      String    @db.VarChar(120)
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  products  Product[]
+
+  @@map("categories")
+}
+
+model Product {
+  id          String   @id @default(uuid()) @db.Uuid
+  slug        String   @unique
+  name        String   @db.VarChar(200)
+  description String   @db.Text
+  categoryId  String   @map("category_id") @db.Uuid
+  images      String[] @default([])
+  isActive    Boolean  @default(true) @map("is_active")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  category Category @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  skus     Sku[]
+
+  @@index([categoryId])
+  @@index([isActive])
+  @@map("products")
+}
+
+model Sku {
+  id         String   @id @default(uuid()) @db.Uuid
+  productId  String   @map("product_id") @db.Uuid
+  sku        String   @unique
+  attributes Json     @default("{}")
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  product   Product       @relation(fields: [productId], references: [id], onDelete: Cascade)
+  prices    SkuPrice[]
+  inventory Inventory?
+  reservations Reservation[]
+
+  @@index([productId])
+  @@map("skus")
+}
+
+// One row per (skuId, currency). amount is integer subunit.
+model SkuPrice {
+  id         String   @id @default(uuid()) @db.Uuid
+  skuId      String   @map("sku_id") @db.Uuid
+  currency   Currency
+  unitAmount Int      @map("unit_amount")
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  sku Sku @relation(fields: [skuId], references: [id], onDelete: Cascade)
+
+  @@unique([skuId, currency])
+  @@map("sku_prices")
+}
+
+// One-to-one with Sku. `available` = on-hand stock not yet reserved;
+// `reserved` = sum of active reservations (still subtracted from on-hand).
+model Inventory {
+  skuId     String   @id @map("sku_id") @db.Uuid
+  available Int      @default(0)
+  reserved  Int      @default(0)
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  sku Sku @relation(fields: [skuId], references: [id], onDelete: Cascade)
+
+  @@map("inventory")
+}
+
+// One reservation row per (orderId, skuId). Composite unique guarantees
+// idempotency: a retried `reserve` for the same (orderId, skuId) is a no-op.
+model Reservation {
+  id        String   @id @default(uuid()) @db.Uuid
+  orderId   String   @map("order_id") @db.Uuid
+  skuId     String   @map("sku_id") @db.Uuid
+  quantity  Int
+  createdAt DateTime @default(now()) @map("created_at")
+
+  sku Sku @relation(fields: [skuId], references: [id], onDelete: Cascade)
+
+  @@unique([orderId, skuId])
+  @@index([orderId])
+  @@map("reservations")
+}
+
+// Transactional outbox: domain events written in the same $transaction as
+// the aggregate change. `OutboxPollerCron` (every 1s) drains rows where
+// publishedAt IS NULL, publishes via amqplib, marks them published.
+model OutboxEvent {
+  id          String    @id @default(uuid()) @db.Uuid
+  routingKey  String    @map("routing_key")
+  payload     Json
+  createdAt   DateTime  @default(now()) @map("created_at")
+  publishedAt DateTime? @map("published_at")
+
+  @@index([publishedAt, createdAt])
+  @@map("outbox_events")
+}

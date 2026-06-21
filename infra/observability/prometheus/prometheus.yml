@@ -1,0 +1,54 @@
+# Scrape config for every backend service. Apps run on the host so we
+# reach them via host.docker.internal (mapped by docker-compose extra_hosts).
+# Adjust ports if you override the defaults in service env vars.
+
+global:
+  scrape_interval: 10s
+  evaluation_interval: 10s
+  external_labels:
+    cluster: jcool-dev
+
+rule_files:
+  - "alerts/*.yml"
+
+scrape_configs:
+  - job_name: prometheus
+    static_configs:
+      - targets: ["localhost:9090"]
+
+  - job_name: auth-service
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["host.docker.internal:3001"]
+        labels: { service: auth-service }
+
+  - job_name: catalog-service
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["host.docker.internal:3002"]
+        labels: { service: catalog-service }
+
+  - job_name: search-service
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["host.docker.internal:3003"]
+        labels: { service: search-service }
+
+  - job_name: order-service
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["host.docker.internal:3004"]
+        labels: { service: order-service }
+
+  - job_name: api-gateway
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["host.docker.internal:3000"]
+        labels: { service: api-gateway }
+
+  - job_name: email-worker
+    metrics_path: /metrics
+    static_configs:
+      # email-worker has no NestJS HTTP — exposes /metrics on METRICS_PORT.
+      - targets: ["host.docker.internal:9100"]
+        labels: { service: email-worker }

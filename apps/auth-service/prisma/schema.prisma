@@ -1,0 +1,35 @@
+// Auth service database — owns the canonical User record.
+// NextAuth (storefront) has no DB adapter; it holds only access tokens.
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL_AUTH")
+}
+
+enum UserRole {
+  customer
+  admin
+}
+
+enum AuthProvider {
+  credentials
+  google
+}
+
+model User {
+  id           String       @id @default(uuid()) @db.Uuid
+  email        String       @unique @db.Citext
+  name         String       @db.VarChar(120)
+  passwordHash String?      @map("password_hash")
+  role         UserRole     @default(customer)
+  provider     AuthProvider @default(credentials)
+  createdAt    DateTime     @default(now()) @map("created_at")
+  updatedAt    DateTime     @updatedAt @map("updated_at")
+
+  @@map("users")
+}

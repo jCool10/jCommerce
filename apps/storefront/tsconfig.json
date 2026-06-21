@@ -1,0 +1,14 @@
+{
+  "extends": "@jcool/tsconfig/nextjs.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./*"]
+    },
+    "tsBuildInfoFile": ".next/.tsbuildinfo",
+    "declaration": false,
+    "declarationMap": false
+  },
+  "include": ["next-env.d.ts", "types/**/*.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+  "exclude": ["node_modules", ".next", "coverage"]
+}

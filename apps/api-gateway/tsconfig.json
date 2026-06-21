@@ -1,0 +1,11 @@
+{
+  "extends": "@jcool/tsconfig/nestjs.json",
+  "compilerOptions": {
+    "rootDir": ".",
+    "outDir": "dist",
+    "incremental": true,
+    "tsBuildInfoFile": "dist/.tsbuildinfo"
+  },
+  "include": ["src/**/*", "test/**/*"],
+  "exclude": ["dist", "node_modules", "coverage"]
+}

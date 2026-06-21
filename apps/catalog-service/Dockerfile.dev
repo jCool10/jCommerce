@@ -1,0 +1,11 @@
+# Dev-only image — production multi-stage image is added in phase 15.
+FROM node:20-alpine
+
+WORKDIR /workspace
+
+# pnpm via corepack
+RUN corepack enable && corepack prepare pnpm@10.30.3 --activate
+
+# Workspace files are bind-mounted by docker-compose for fast inner-loop.
+EXPOSE 3002
+CMD ["pnpm", "--filter", "@jcool/catalog-service", "dev"]
